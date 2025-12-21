@@ -27,26 +27,16 @@ class RegisteredUserController extends Controller
 
         $user = User::query()->create([
             'full_name' => $data['full_name'],
-            'phone' => $data['phone'],
+            'phone' => $data['phone'], // already normalized in request
             'email' => $data['email'] ?? null,
             'role' => $data['role'],
             'status' => 'ACTIVE',
             'password' => Hash::make($data['password']),
         ]);
 
-        $user = User::create([
-            'full_name' => $request->full_name,
-            'phone' => $request->phone,
-            'role' => $request->role,
-            'email' => $request->email,
-            'password' => Hash::make($request->string('password')),
-        ]);
-
         event(new Registered($user));
 
-        // Token for mobile clients
         $token = $user->createToken('mobile')->plainTextToken;
-        Auth::login($user);
 
         return response()->json([
             'token_type' => 'Bearer',

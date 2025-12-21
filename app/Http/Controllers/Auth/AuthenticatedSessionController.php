@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Support\Phone;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -17,9 +18,11 @@ class AuthenticatedSessionController extends Controller
             'password' => ['required', 'string'],
         ]);
 
+        $phone = Phone::normalize($credentials['phone']);
+
         /** @var User|null $user */
         $user = User::query()
-            ->where('phone', $credentials['phone'])
+            ->where('phone', $phone)
             ->first();
 
         if (!$user || !Hash::check($credentials['password'], $user->password)) {

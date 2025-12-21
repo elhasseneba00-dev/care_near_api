@@ -4,16 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Review extends Model
+class AuditLog extends Model
 {
     public $timestamps = false;
 
     protected $fillable = [
-        'care_request_id',
-        'patient_user_id',
-        'nurse_user_id',
-        'rating',
-        'comment',
+        'actor_user_id',
+        'action',
+        'entity_type',
+        'entity_id',
+        'meta',
         'created_at',
     ];
 
@@ -21,6 +21,7 @@ class Review extends Model
     {
         return [
             'created_at' => 'datetime',
+            'meta' => 'array',
         ];
     }
 }

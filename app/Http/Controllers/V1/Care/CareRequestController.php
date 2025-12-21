@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\V1\Care\ActionCareRequest;
 use App\Http\Requests\V1\Care\StoreCareRequest;
 use App\Http\Resources\V1\Care\CareRequestResource;
+use App\Jobs\NotifyNearByNursesOfNewCareRequest;
 use App\Models\CareRequest;
 use App\Models\CareRequestIgnore;
 use App\Models\NurseProfile;
 use App\Models\User;
+use App\Notifications\CareRequestNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -180,6 +182,15 @@ SQL;
             'lng' => $payload['lng'],
             'status' => 'PENDING',
         ]);
+
+        NotifyNearbyNursesOfNewCareRequest::dispatch($careRequest->id);
+
+        // Notify the patient (self) that request was created (optional but useful)
+        $request->user()->notify(new CareRequestNotification(
+            event: 'CREATED',
+            careRequest: $careRequest,
+            message: "Votre demande a été créée et envoyée aux infirmiers proches."
+        ));
 
         return response()->json(['data' => new CareRequestResource($careRequest)], 201);
     }

@@ -2,11 +2,24 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Support\Phone;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class RegisterRequest extends FormRequest
 {
+    public function prepareForValidation(): void
+    {
+        if ($this->has('phone')) {
+            $this->merge([
+                'phone' => Phone::normalize((string) $this->input('phone'))
+            ]);
+        }
+
+        if ($this->has('email') && $this->input('email') === '') {
+            $this->merge(['email' => null]);
+        }
+    }
     /**
      * Determine if the user is authorized to make this request.
      */
