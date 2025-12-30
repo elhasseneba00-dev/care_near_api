@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('nurse_pofiles', function (Blueprint $table) {
+        Schema::create('nurse_profiles', function (Blueprint $table) {
             $table->unsignedBigInteger('user_id')->primary();
             $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
             $table->string('diploma', 150)->nullable();
@@ -35,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('nurse_pofiles');
+        Schema::dropIfExists('nurse_profiles');
     }
 };

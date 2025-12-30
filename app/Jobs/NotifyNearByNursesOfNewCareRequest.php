@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\CareRequest;
+use App\Models\CareRequestNotificationSend;
 use App\Models\NurseProfile;
 use App\Models\User;
 use App\Notifications\CareRequestNotification;
@@ -14,44 +15,39 @@ use Illuminate\Queue\SerializesModels;
 
 class NotifyNearByNursesOfNewCareRequest implements ShouldQueue
 {
-    use Queueable, Dispatchable, InteractsWithQueue, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    /**
-     * Create a new job instance.
-     */
+    public int $maxNurses = 50;
+
     public function __construct(public int $careRequestId) {}
 
-    /**
-     * Execute the job.
-     */
     public function handle(): void
     {
         $care = CareRequest::query()->find($this->careRequestId);
         if (!$care) return;
 
-        // Only for open pending requests
         if ($care->status !== 'PENDING' || $care->nurse_user_id !== null) return;
 
-        // Don’t spam if no city (fallback) and no lat/lng
         $hasLatLng = $care->lat !== null && $care->lng !== null;
         $hasCity = !empty($care->city);
 
         if (!$hasLatLng && !$hasCity) return;
 
-        $nurseProfiles = NurseProfile::query()
-            ->whereNotNull('user_id')
-            ->when($hasCity, fn ($q) => $q->orWhere('city', $care->city))
+        $profiles = NurseProfile::query()
+            ->where('verified', true)
             ->get();
 
-        // Haversine in PHP (MVP) to keep it simple and avoid heavy SQL per nurse.
-        // For scale, we’ll move to SQL + bounding box later.
-        foreach ($nurseProfiles as $profile) {
+        $candidates = [];
+
+        foreach ($profiles as $profile) {
+            if (!$profile->user_id) continue;
+
             $nurseUser = User::query()->find($profile->user_id);
             if (!$nurseUser || $nurseUser->role !== 'NURSE' || $nurseUser->status !== 'ACTIVE') {
                 continue;
             }
 
-            // Prefer radius match if both sides have lat/lng
+            $distanceKm = null;
             $withinRadius = false;
 
             if ($hasLatLng && $profile->lat !== null && $profile->lng !== null) {
@@ -62,7 +58,50 @@ class NotifyNearByNursesOfNewCareRequest implements ShouldQueue
 
             $matchesCity = $hasCity && !empty($profile->city) && $profile->city === $care->city;
 
-            if (!$withinRadius && !$matchesCity) {
+            if (!$withinRadius && !$matchesCity) continue;
+
+            $candidates[] = [
+                'user' => $nurseUser,
+                'priority' => $withinRadius ? 0 : 1,
+                'distance_km' => $distanceKm,
+            ];
+        }
+
+        if (empty($candidates)) return;
+
+        usort($candidates, function ($a, $b) {
+            if ($a['priority'] !== $b['priority']) return $a['priority'] <=> $b['priority'];
+
+            $da = $a['distance_km'];
+            $db = $b['distance_km'];
+
+            if ($da === null && $db === null) return 0;
+            if ($da === null) return 1;
+            if ($db === null) return -1;
+
+            return $da <=> $db;
+        });
+
+        $selected = array_slice($candidates, 0, $this->maxNurses);
+
+        foreach ($selected as $c) {
+            /** @var User $nurseUser */
+            $nurseUser = $c['user'];
+
+            // Idempotency guard
+            $send = CareRequestNotificationSend::query()->firstOrCreate(
+                [
+                    'care_request_id' => $care->id,
+                    'nurse_user_id' => $nurseUser->id,
+                    'event' => 'CREATED',
+                ],
+                [
+                    'created_at' => now(),
+                ]
+            );
+
+            // If it already existed, firstOrCreate returns existing row; we must detect "wasRecentlyCreated"
+            if (!$send->wasRecentlyCreated) {
                 continue;
             }
 

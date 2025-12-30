@@ -12,7 +12,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('patient_pofiles', function (Blueprint $table) {
+        Schema::create('patient_profiles', function (Blueprint $table) {
             $table->unsignedBigInteger('user_id')->primary();
             $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
             $table->date('birth_date')->nullable();
@@ -33,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('patient_pofiles');
+        Schema::dropIfExists('patient_profiles');
     }
 };

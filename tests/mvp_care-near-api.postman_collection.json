@@ -1,0 +1,292 @@
+{
+  "info": {
+    "name": "CareNear API (v1)",
+    "_postman_id": "0b8f0e3b-5f2e-4d62-9c88-9a0b6f6b8d21",
+    "description": "MVP API collection for CareNear (Laravel 12 + Breeze API + Sanctum). Base URL: {{base_url}}",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://care-near-backend.test/api/v1" },
+    { "key": "patient_token", "value": "" },
+    { "key": "nurse_token", "value": "" },
+    { "key": "admin_token", "value": "" },
+    { "key": "care_request_id", "value": "" },
+    { "key": "nurse_user_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/login", "host": ["{{base_url}}"], "path": ["login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"22211111111\",\n  \"password\": \"admin123\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.environment.set('admin_token', json.access_token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register (Patient)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/register", "host": ["{{base_url}}"], "path": ["register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Patient Test\",\n  \"phone\": \"22222222222\",\n  \"email\": null,\n  \"role\": \"PATIENT\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Register (Nurse)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/register", "host": ["{{base_url}}"], "path": ["register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Nurse Test\",\n  \"phone\": \"22333333333\",\n  \"email\": null,\n  \"role\": \"NURSE\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login (Patient)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/login", "host": ["{{base_url}}"], "path": ["login"] },
+            "body": { "mode": "raw", "raw": "{\n  \"phone\": \"22222222222\",\n  \"password\": \"password123\"\n}" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": { "exec": ["const json = pm.response.json();", "pm.environment.set('patient_token', json.access_token);"], "type": "text/javascript" }
+            }
+          ]
+        },
+        {
+          "name": "Login (Nurse)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/login", "host": ["{{base_url}}"], "path": ["login"] },
+            "body": { "mode": "raw", "raw": "{\n  \"phone\": \"22333333333\",\n  \"password\": \"password123\"\n}" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": { "exec": ["const json = pm.response.json();", "pm.environment.set('nurse_token', json.access_token);"], "type": "text/javascript" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Profiles",
+      "item": [
+        {
+          "name": "PUT Nurse Profile (location + coverage)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{nurse_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/nurse/profile", "host": ["{{base_url}}"], "path": ["nurse", "profile"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"diploma\": \"Infirmier Diplome\",\n  \"experience_years\": 3,\n  \"bio\": \"Disponible\",\n  \"city\": \"Nouakchott\",\n  \"address\": \"Tevragh Zeina\",\n  \"lat\": 18.102,\n  \"lng\": -15.958,\n  \"coverage_km\": 10,\n  \"price_min\": 100,\n  \"price_max\": 300\n}"
+            }
+          }
+        },
+        {
+          "name": "PUT Patient Profile (location)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{patient_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/patient/profile", "host": ["{{base_url}}"], "path": ["patient", "profile"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"city\": \"Nouakchott\",\n  \"address\": \"Tevragh Zeina\",\n  \"lat\": 18.102,\n  \"lng\": -15.958\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Marketplace (Care Requests)",
+      "item": [
+        {
+          "name": "POST Create Care Request (Patient)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{patient_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/care-requests", "host": ["{{base_url}}"], "path": ["care-requests"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"care_type\": \"Pansement\",\n  \"description\": \"Pansement quotidien\",\n  \"scheduled_at\": \"2025-12-20T10:00:00+00:00\",\n  \"address\": \"Tevragh Zeina\",\n  \"city\": \"Nouakchott\",\n  \"lat\": 18.102,\n  \"lng\": -15.958\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": { "exec": ["const json = pm.response.json();", "pm.environment.set('care_request_id', json.data.id);"], "type": "text/javascript" }
+            }
+          ]
+        },
+        {
+          "name": "GET Care Requests (Nurse)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{nurse_token}}" }],
+            "url": { "raw": "{{base_url}}/care-requests", "host": ["{{base_url}}"], "path": ["care-requests"] }
+          }
+        },
+        {
+          "name": "POST Accept Care Request (Nurse)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{nurse_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/care-requests/{{care_request_id}}/accept",
+              "host": ["{{base_url}}"],
+              "path": ["care-requests", "{{care_request_id}}", "accept"]
+            }
+          }
+        },
+        {
+          "name": "POST Complete Care Request (Nurse)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{nurse_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/care-requests/{{care_request_id}}/complete",
+              "host": ["{{base_url}}"],
+              "path": ["care-requests", "{{care_request_id}}", "complete"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chat",
+      "item": [
+        {
+          "name": "POST Message (Nurse)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{nurse_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/care-requests/{{care_request_id}}/messages",
+              "host": ["{{base_url}}"],
+              "path": ["care-requests", "{{care_request_id}}", "messages"]
+            },
+            "body": { "mode": "raw", "raw": "{\n  \"message\": \"Bonjour, je suis en route.\"\n}" }
+          }
+        },
+        {
+          "name": "GET Messages (Patient)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{patient_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/care-requests/{{care_request_id}}/messages",
+              "host": ["{{base_url}}"],
+              "path": ["care-requests", "{{care_request_id}}", "messages"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reviews (public + protected)",
+      "item": [
+        {
+          "name": "POST Review (Patient)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{patient_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/care-requests/{{care_request_id}}/review",
+              "host": ["{{base_url}}"],
+              "path": ["care-requests", "{{care_request_id}}", "review"]
+            },
+            "body": { "mode": "raw", "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Très professionnel\"\n}" }
+          }
+        },
+        {
+          "name": "GET Nurse Rating (Public)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/nurses/1/rating",
+              "host": ["{{base_url}}"],
+              "path": ["nurses", "1", "rating"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "GET Admin Stats",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+            "url": { "raw": "{{base_url}}/admin/stats", "host": ["{{base_url}}"], "path": ["admin", "stats"] }
+          }
+        },
+        {
+          "name": "GET Admin Care Requests",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+            "url": { "raw": "{{base_url}}/admin/care-requests?status=PENDING", "host": ["{{base_url}}"], "path": ["admin", "care-requests"], "query": [{ "key": "status", "value": "PENDING" }] }
+          }
+        },
+        {
+          "name": "GET Admin Care Request Messages",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/admin/care-requests/{{care_request_id}}/messages",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "care-requests", "{{care_request_id}}", "messages"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -21,10 +21,10 @@ class AdminCareRequestController extends Controller
             'patient_user_id' => ['nullable', 'integer'],
             'nurse_user_id' => ['nullable', 'integer'],
 
-            'per_page' => ['nullable', 'integer', 'min:1', 'max;50']
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:50']
         ]);
 
-        $perPage = (int) $validated['per_page'] ?? 20;
+        $perPage = (int) ($validated['per_page'] ?? 20);
 
         $query = CareRequest::query()->orderByDesc('id');
 

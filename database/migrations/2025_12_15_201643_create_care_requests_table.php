@@ -27,6 +27,14 @@ return new class extends Migration
             $table->foreign('nurse_user_id')->references('id')->on('users')->nullOnDelete();
             $table->index(['patient_user_id', 'status']);
             $table->index(['nurse_user_id', 'status']);
+
+            $table->string('visibility', 20)->default('BROADCAST')->after('status');
+            $table->unsignedBigInteger('target_nurse_user_id')->nullable()->after('nurse_user_id');
+            $table->timestampTz('expires_at')->nullable()->after('scheduled_at');
+            $table->foreign('target_nurse_user_id')->references('id')->on('users')->nullOnDelete();
+
+            $table->index(['visibility', 'status']);
+            $table->index(['target_nurse_user_id', 'status']);
             $table->timestamps();
         });
     }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\V1\Chat;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\V1\Care\StoreCareRequest;
+use App\Http\Requests\V1\Chat\StoreMessageRequest;
 use App\Http\Resources\V1\Chat\MessageResource;
 use App\Models\CareRequest;
 use App\Models\Message;
@@ -34,7 +35,7 @@ class MessageController extends Controller
         ]);
     }
 
-    public function store(StoreCareRequest $request, CareRequest $careRequest): JsonResponse {
+    public function store(StoreMessageRequest $request, CareRequest $careRequest): JsonResponse {
         $user = $request->user();
 
         if (!$this->canAccessChat($user, $careRequest)) {

@@ -123,4 +123,7 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    // After N warnings, you may decide to auto-suspend later (not done now)
+    'max_contact_share_warnings' => env('MAX_CONTACT_SHARE_WARNINGS', 2),
+
 ];

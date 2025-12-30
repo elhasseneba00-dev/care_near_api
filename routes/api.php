@@ -7,6 +7,7 @@ use App\Http\Controllers\V1\Admin\AdminStatsController;
 use App\Http\Controllers\V1\Admin\AdminUserController;
 use App\Http\Controllers\V1\Care\CareRequestController;
 use App\Http\Controllers\V1\Chat\MessageController;
+use App\Http\Controllers\V1\Favorite\FavoriteController;
 use App\Http\Controllers\V1\Notification\NotificationController;
 use App\Http\Controllers\V1\Nurse\NurseProfileController;
 use App\Http\Controllers\V1\Nurse\NurseSearchController;
@@ -45,6 +46,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/care-requests/{careRequest}/reject', [CareRequestController::class, 'reject']);
         Route::post('/care-requests/{careRequest}/cancel', [CareRequestController::class, 'cancel']);
         Route::post('/care-requests/{careRequest}/complete', [CareRequestController::class, 'complete']);
+        Route::post('/care-requests/{careRequest}/rebook', [CareRequestController::class, 'rebook']);
 
         // NEW: ignore open request (nurse only)
         Route::post('/care-requests/{careRequest}/ignore', [CareRequestController::class, 'ignore']);
@@ -56,6 +58,7 @@ Route::prefix('v1')->group(function () {
         // Reviews (protected for creation)
         Route::post('/care-requests/{careRequest}/review', [ReviewController::class, 'store']);
 
+        // Admin
         Route::prefix('admin')->middleware('role:ADMIN')->group(function () {
             Route::get('/nurses', [AdminNurseVerificationController::class, 'index']);
             Route::post('/nurses/{nurseUserId}/verify', [AdminNurseVerificationController::class, 'verify']);
@@ -72,5 +75,10 @@ Route::prefix('v1')->group(function () {
         Route::get('/notifications', [NotificationController::class, 'index']);
         Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead']);
         Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead']);
+
+        // Favorites
+        Route::get('/favorites', [FavoriteController::class, 'index']);
+        Route::post('/favorites/{nurseUserId}', [FavoriteController::class, 'store']);
+        Route::delete('/favorites/{nurseUserId}', [FavoriteController::class, 'destroy']);
     });
 });

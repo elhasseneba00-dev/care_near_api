@@ -48,6 +48,7 @@ class AuthenticatedSessionController extends Controller
             'data' => [
                 'user' => $user,
             ],
+            "message" => "As a $user->role, u've successfully connected.",
         ]);
     }
 
@@ -59,6 +60,8 @@ class AuthenticatedSessionController extends Controller
             $user->currentAccessToken()?->delete();
         }
 
-        return response()->json([], 204);
+        return response()->json([
+            "message" => "User have successfully disconnected.",
+        ], 204);
     }
 }

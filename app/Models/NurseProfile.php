@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class NurseProfile extends Model
 {
+    protected $table = 'nurse_profiles';
     protected $primaryKey = 'user_id';
 
     public $incrementing = false;

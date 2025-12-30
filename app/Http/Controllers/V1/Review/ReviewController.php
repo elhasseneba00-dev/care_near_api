@@ -28,7 +28,7 @@ class ReviewController extends Controller
             return response()->json(['message' => 'Review is allowed only after request is DONE'], 422);
         }
 
-        if ($careRequest->nurse_user_id){
+        if (!$careRequest->nurse_user_id){
             return response()->json(['message' => 'Cannot review a request without a nurse.'], 422);
         }
 

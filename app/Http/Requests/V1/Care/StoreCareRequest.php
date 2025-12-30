@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\V1\Care;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreCareRequest extends FormRequest
 {
@@ -17,7 +19,7 @@ class StoreCareRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array|string>
      */
     public function rules(): array
     {
@@ -34,6 +36,21 @@ class StoreCareRequest extends FormRequest
             'city' => ['required', 'string', 'max:80'],
             'lat' => ['nullable', 'numeric', 'between:-90,90'],
             'lng' => ['nullable', 'numeric', 'between:-180,180'],
+
+            'visibility' => ['nullable', Rule::in(['BROADCAST', 'TARGETED'])],
+            'target_nurse_user_id' => ['nullable', 'integer'],
+            'expires_at' => ['nullable', 'date'],
         ];
+    }
+
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            $visibility = $this->input('visibility', 'BROADCAST');
+
+            if ($visibility === 'TARGETED' && !$this->input('target_nurse_user_id')) {
+                $validator->errors()->add('target_nurse_user_id', 'target_nurse_user_id is required for TARGETED requests.');
+            }
+        });
     }
 }
