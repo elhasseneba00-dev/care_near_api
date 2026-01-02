@@ -440,7 +440,9 @@ SQL;
             'created_at' => now(),
         ]);
 
-        return response()->json([], 204);
+        return response()->json([
+            'message' => 'Request ignored successfully.',
+        ], 200);
     }
 
     /**

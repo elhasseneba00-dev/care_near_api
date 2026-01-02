@@ -37,7 +37,8 @@ Route::prefix('v1')->group(function () {
         Route::get('/nurses/search', [NurseSearchController::class, 'search']);
 
         // Care requests
-        Route::post('/care-requests', [CareRequestController::class, 'store']);
+        Route::post('/care-requests', [CareRequestController::class, 'store'])
+            ->middleware('throttle:10,60'); // 10 per hour per patient
         Route::get('/care-requests', [CareRequestController::class, 'index']);
         Route::get('/care-requests/{careRequest}', [CareRequestController::class, 'show']);
 
@@ -52,7 +53,8 @@ Route::prefix('v1')->group(function () {
 
         // Chat
         Route::get('/care-requests/{careRequest}/messages', [MessageController::class, 'index']);
-        Route::post('/care-requests/{careRequest}/messages', [MessageController::class, 'store']);
+        Route::post('/care-requests/{careRequest}/messages', [MessageController::class, 'store'])
+            ->middleware('throttle:20,1'); // 20 per minute per user
 
         // Reviews (protected for creation)
         Route::post('/care-requests/{careRequest}/review', [ReviewController::class, 'store']);
