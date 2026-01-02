@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\V1\Chat;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\V1\Care\StoreCareRequest;
 use App\Http\Requests\V1\Chat\StoreMessageRequest;
 use App\Http\Resources\V1\Chat\MessageResource;
 use App\Models\CareRequest;
 use App\Models\Message;
 use App\Models\User;
 use App\Notifications\ChatModerationWarning;
+use App\Services\Audit;
 use App\Services\ChatModeration;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -91,6 +91,11 @@ class MessageController extends Controller
         [$flagged, $masked, $matches] = ChatModeration::detectAndMask($text);
 
         if ($flagged) {
+
+            Audit::log($user, 'CHAT_CONTACT_MASKED', 'CareRequest', $careRequest->id, [
+                'matches' => $matches,
+            ], $request);
+
             $user->notify(new ChatModerationWarning(
                 reason: 'CONTACT_SHARING_DETECTED',
                 careRequestId: $careRequest->id

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\MeController;
+use App\Http\Controllers\V1\Admin\AdminAuditLogController;
 use App\Http\Controllers\V1\Admin\AdminCareRequestController;
 use App\Http\Controllers\V1\Admin\AdminCareRequestMessageController;
 use App\Http\Controllers\V1\Admin\AdminNurseVerificationController;
@@ -68,6 +69,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/users', [AdminUserController::class, 'index']);
             Route::post('/users/{userId}/suspend', [AdminUserController::class, 'suspend']);
             Route::post('/users/{userId}/unsuspend', [AdminUserController::class, 'unsuspend']);
+
+            Route::get('/audit-logs', [AdminAuditLogController::class, 'index']);
         });
 
         // Notifications

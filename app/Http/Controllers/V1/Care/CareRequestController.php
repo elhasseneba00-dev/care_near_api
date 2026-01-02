@@ -13,6 +13,7 @@ use App\Models\CareRequestIgnore;
 use App\Models\NurseProfile;
 use App\Models\User;
 use App\Notifications\CareRequestNotification;
+use App\Services\Audit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -316,6 +317,11 @@ SQL;
             'status' => 'PENDING',
         ]);
 
+        Audit::log($user, 'CARE_REQUEST_CREATED', 'CareRequest', $careRequest->id, [
+            'visibility' => $careRequest->visibility ?? null,
+            'city' => $careRequest->city ?? null,
+        ], $request);
+
         // Notify the patient (self)
         $request->user()->notify(new CareRequestNotification(
             event: 'CREATED',
@@ -388,6 +394,8 @@ SQL;
 
         $fresh = CareRequest::query()->findOrFail($careRequest->id);
 
+        Audit::log($user, 'CARE_REQUEST_ACCEPTED', 'CareRequest', $fresh->id, [], $request);
+
         // notifier patient + nurse
         User::query()->find($fresh->patient_user_id)?->notify(new CareRequestNotification(
             event: 'ACCEPTED',
@@ -440,6 +448,8 @@ SQL;
             'created_at' => now(),
         ]);
 
+        Audit::log($user, 'CARE_REQUEST_ACCEPTED', 'CareRequest', $careRequest->id, [], $request);
+
         return response()->json([], 204);
     }
 
@@ -474,6 +484,8 @@ SQL;
         }
 
         $careRequest->update(['status' => 'CANCELED']);
+
+        Audit::log($user, 'CARE_REQUEST_CANCELED', 'CareRequest', $careRequest->id, [], $request);
 
         // notifier patient + nurse si assignée
         $request->user()->notify(new CareRequestNotification(
@@ -533,6 +545,8 @@ SQL;
         }
 
         $careRequest->update(['status' => 'DONE']);
+
+        Audit::log($user, 'CARE_REQUEST_COMPLETED', 'CareRequest', $careRequest->id, [], $request);
 
         // notifier patient + nurse
         User::query()->find($careRequest->patient_user_id)
@@ -634,6 +648,11 @@ SQL;
 
             'status' => 'PENDING',
         ]);
+
+        Audit::log($user, 'CARE_REQUEST_REBOOKED', 'CareRequest', $new->id, [
+            'visibility' => $new->visibility ?? null,
+            'city' => $new->city ?? null,
+        ], $request);
 
         // Notify patient (self)
         $user->notify(new CareRequestNotification(
