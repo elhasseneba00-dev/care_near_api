@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\Audit;
 use App\Support\Phone;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -62,6 +63,13 @@ class AuthenticatedSessionController extends Controller
         }
 
         if ($user->status !== 'ACTIVE') {
+
+            Audit::log($user, 'LOGIN_FAILED', 'User', $user->id, [
+                'phone' => $phone,
+                'reason' => 'account_not_active',
+                'status' => $user->status,
+            ], $request);
+
             return response()->json([
                 'message' => 'Account is not active.',
             ], 403);
@@ -71,6 +79,11 @@ class AuthenticatedSessionController extends Controller
         $user->tokens()->delete();
 
         $token = $user->createToken('mobile')->plainTextToken;
+
+        Audit::log($user, 'LOGIN_SUCCESS', 'User', $user->id, [
+            'phone' => $phone,
+            'role' => $user->role,
+        ], $request);
 
         return response()->json([
             'token_type' => 'Bearer',
@@ -90,12 +103,14 @@ class AuthenticatedSessionController extends Controller
      *   security={{"bearerAuth":{}}},
      *   @OA\Response(response=204, description="Logged out")
      * )
-     */    public function destroy(Request $request): JsonResponse
+     */
+    public function destroy(Request $request): JsonResponse
     {
         $user = $request->user();
 
         if ($user) {
             $user->currentAccessToken()?->delete();
+            Audit::log($user, 'LOGOUT', 'User', $user->id, [], $request);
         }
 
         return response()->json([
