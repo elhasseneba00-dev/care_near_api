@@ -80,7 +80,7 @@ php artisan db:seed --class=CareRequestSeeder
 The following endpoints have rate limiting to prevent abuse:
 
 - **Login** (`POST /api/v1/login`): 5 requests per minute
-- **Care Request Creation** (`POST /api/v1/care-requests`): 10 requests per hour per patient
+- **Care Request Creation** (`POST /api/v1/care-requests`): 10 requests per 60 minutes (1 hour) per patient
 - **Chat Messages** (`POST /api/v1/care-requests/{id}/messages`): 20 requests per minute per user
 
 #### Response Format

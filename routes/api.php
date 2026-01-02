@@ -38,7 +38,7 @@ Route::prefix('v1')->group(function () {
 
         // Care requests
         Route::post('/care-requests', [CareRequestController::class, 'store'])
-            ->middleware('throttle:10,60'); // 10 per hour per patient
+            ->middleware('throttle:10,60'); // 10 per 60 minutes (1 hour) per patient
         Route::get('/care-requests', [CareRequestController::class, 'index']);
         Route::get('/care-requests/{careRequest}', [CareRequestController::class, 'show']);
 
