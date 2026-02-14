@@ -15,20 +15,24 @@ class UpsertNurseProfileResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'user_id' => $this->user_id,
-            'diploma' => $this->diploma,
+            'user_id'          => $this->user_id,
+            'diploma'          => $this->diploma,
+            'diploma_url'      => $this->diploma_path
+                ? url('/api/v1/nurse/profile/diploma') // endpoint sécurisé
+                : null,
+            'has_diploma_file' => !empty($this->diploma_path),
             'experience_years' => $this->experience_years,
-            'bio' => $this->bio,
-            'city' => $this->city,
-            'address' => $this->address,
-            'lat' => $this->lat,
-            'lng' => $this->lng,
-            'coverage_km' => $this->coverage_km,
-            'price_min' => $this->price_min,
-            'price_max' => $this->price_max,
-            'verified' => (bool) $this->verified,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'bio'              => $this->bio,
+            'city'             => $this->city,
+            'address'          => $this->address,
+            'lat'              => $this->lat,
+            'lng'              => $this->lng,
+            'coverage_km'      => $this->coverage_km,
+            'price_min'        => $this->price_min,
+            'price_max'        => $this->price_max,
+            'verified'         => (bool) $this->verified,
+            'created_at'       => $this->created_at?->toISOString(),
+            'updated_at'       => $this->updated_at?->toISOString(),
         ];
     }
 }

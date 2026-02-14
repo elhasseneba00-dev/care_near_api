@@ -17,29 +17,29 @@ class AuthenticatedSessionController extends Controller
      *   path="/login",
      *   tags={"Auth"},
      *   summary="Login with phone and password",
-     *   description="Returns a Sanctum token (Bearer).",
+     *   description="Authenticates user by phone number, revokes any previous tokens, and returns a new Sanctum Bearer token.",
      *   @OA\RequestBody(
      *     required=true,
      *     @OA\JsonContent(
      *       required={"phone","password"},
-     *       @OA\Property(property="phone", type="string", example="22222222222"),
+     *       @OA\Property(property="phone", type="string", maxLength=30, example="22233334444"),
      *       @OA\Property(property="password", type="string", example="password123")
      *     )
      *   ),
      *   @OA\Response(
      *     response=200,
-     *     description="OK",
+     *     description="Login successful",
      *     @OA\JsonContent(
-     *       @OA\Property(property="token_type", type="string", example="Bearer"),
-     *       @OA\Property(property="access_token", type="string", example="1|xxxxxxxxxxxxxxxx"),
      *       @OA\Property(property="data", type="object",
+     *         @OA\Property(property="token_type", type="string", example="Bearer"),
+     *         @OA\Property(property="access_token", type="string", example="1|abc123xyz..."),
      *         @OA\Property(property="user", type="object")
      *       ),
-     *       @OA\Property(property="message", type="string")
+     *       @OA\Property(property="message", type="string", example="As a PATIENT, you've successfully connected.")
      *     )
      *   ),
-     *   @OA\Response(response=422, description="Invalid credentials / validation error"),
-     *   @OA\Response(response=403, description="Account not active")
+     *   @OA\Response(response=403, description="Account not active (SUSPENDED)"),
+     *   @OA\Response(response=422, description="Invalid credentials")
      * )
      */
     public function store(Request $request): JsonResponse
@@ -58,7 +58,7 @@ class AuthenticatedSessionController extends Controller
 
         if (!$user || !Hash::check($credentials['password'], $user->password)) {
             return response()->json([
-                'message' => 'Invalid credentials.',
+                'message' => 'Identifiants fournies sont incorrects.',
             ], 422);
         }
 
@@ -100,8 +100,14 @@ class AuthenticatedSessionController extends Controller
      *   path="/logout",
      *   tags={"Auth"},
      *   summary="Logout (revoke current token)",
+     *   description="Revokes the current Sanctum token. Requires authentication.",
      *   security={{"bearerAuth":{}}},
-     *   @OA\Response(response=204, description="Logged out")
+     *   @OA\Response(response=200, description="Logged out successfully",
+     *     @OA\JsonContent(
+     *       @OA\Property(property="message", type="string", example="User has successfully disconnected.")
+     *     )
+     *   ),
+     *   @OA\Response(response=401, description="Unauthenticated")
      * )
      */
     public function destroy(Request $request): JsonResponse

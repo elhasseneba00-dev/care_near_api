@@ -9,6 +9,56 @@ use Illuminate\Http\Request;
 
 class AdminUserController extends Controller
 {
+    // openApi documentation:
+    /**
+     * @OA\Get(
+     *     path="/admin/users",
+     *     summary="Get list of users with optional filters",
+     *     tags={"Admin Users"},
+     *     @OA\Parameter(
+     *         name="role",
+     *         in="query",
+     *         description="Filter by user role (e.g. 'PATIENT', 'NURSE', 'ADMIN')",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",         description="Filter by user status (e.g. 'ACTIVE', 'SUSPENDED')",       required=false,         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="q",
+     *         in="query",
+     *         description="Search query to match against full name, phone, or email",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",         description="Number of users to return per page (default: 20, max: 50)",        required=false,         @OA\Schema(type="integer", minimum=1, maximum=50)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response with paginated list of users",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(type="object")
+     *             ),
+     *             @OA\Property(
+     *                 property="meta",
+     *                 type="object",
+     *                 @OA\Property(property="current_page", type="integer"),
+     *                 @OA\Property(property="last_page", type="integer"),
+     *                 @OA\Property(property="per_page", type="integer"),
+     *                 @OA\Property(property="total", type="integer"),
+     *             )
+     *         )
+     *     ),
+     * )
+     */
     public function index(Request $request): JsonResponse
     {
         $validate = $request->validate([

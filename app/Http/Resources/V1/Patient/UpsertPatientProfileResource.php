@@ -14,17 +14,31 @@ class UpsertPatientProfileResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+
+        $documents = [];
+        if (!empty($this->medical_documents)) {
+            foreach ($this->medical_documents as $index => $path) {
+                $documents[] = [
+                    'index'    => $index,
+                    'filename' => basename($path),
+                    'url'      => url("/api/v1/patient/profile/documents/{$index}/download"),
+                ];
+            }
+        }
+
         return [
-            'user_id' => $this->user_id,
-            'birth_date' => $this->birth_date,
-            'gender' => $this->gender,
-            'city' => $this->city,
-            'address' => $this->address,
-            'lat' => $this->lat,
-            'lng' => $this->lng,
-            'medical_notes' => $this->medical_notes,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'user_id'            => $this->user_id,
+            'birth_date'         => $this->birth_date?->toDateString(),
+            'gender'             => $this->gender,
+            'city'               => $this->city,
+            'address'            => $this->address,
+            'lat'                => $this->lat,
+            'lng'                => $this->lng,
+            'medical_notes'      => $this->medical_notes,
+            'medical_documents'  => $documents,
+            'documents_count'    => count($documents),
+            'created_at'         => $this->created_at?->toISOString(),
+            'updated_at'         => $this->updated_at?->toISOString(),
         ];
     }
 }

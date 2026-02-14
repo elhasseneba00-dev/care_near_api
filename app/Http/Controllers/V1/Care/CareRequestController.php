@@ -37,37 +37,9 @@ class CareRequestController extends Controller
 
         // Important: ne pas appliquer un orderBy global ici, sinon il passe avant le CASE
         $query = CareRequest::query();
-//--------------------------------------------------------------------------------
         if ($user->role === 'PATIENT') {
             $query->where('patient_user_id', $user->id)
                 ->orderByDesc('id');
-
-           /* if ($user->role === 'PATIENT') {
-                $query->where('patient_user_id', $user->id);
-
-                // Optionnel: calculer distance_km si un point de référence est fourni
-                $refLat = $request->query('lat');
-                $refLng = $request->query('lng');
-
-                if ($refLat !== null && $refLng !== null) {
-                    $refLat = (float) $refLat;
-                    $refLng = (float) $refLng;
-
-                    $distanceSql = <<<SQL
-(6371 * acos(
-    cos(radians(?)) * cos(radians(lat)) * cos(radians(lng) - radians(?))
-    + sin(radians(?)) * sin(radians(lat))
-))
-SQL;
-
-                    $query->select('*')
-                        ->selectRaw("$distanceSql as distance_km", [$refLat, $refLng, $refLat])
-                        // PostgreSQL: ne pas trier par alias dans certains contextes, répéter l'expression
-                        ->orderByRaw("COALESCE(($distanceSql), 999999) ASC", [$refLat, $refLng, $refLat]);
-                }
-
-                $query->orderByDesc('id');  */
-//--------------------------------------------------------------------------------
         } elseif ($user->role === 'NURSE') {
             $profile = NurseProfile::query()->where('user_id', $user->id)->first();
 

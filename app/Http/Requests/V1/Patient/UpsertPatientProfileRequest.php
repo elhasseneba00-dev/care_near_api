@@ -29,6 +29,17 @@ class UpsertPatientProfileRequest extends FormRequest
             'lat' => ['nullable', 'numeric', 'between:-90,90'],
             'lng' => ['nullable', 'numeric', 'between:-180,180'],
             'medical_notes' => ['nullable', 'string', 'max:5000'],
+            'medical_files'     => ['nullable', 'array', 'max:5'],                                // max 5 fichiers à la fois
+            'medical_files.*'   => ['file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],                // 5 Mo chacun
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'medical_files.max'      => 'Vous pouvez uploader maximum 5 fichiers à la fois.',
+            'medical_files.*.mimes'  => 'Les documents doivent être des fichiers PDF, JPG ou PNG.',
+            'medical_files.*.max'    => 'Chaque document ne doit pas dépasser 5 Mo.',
         ];
     }
 }

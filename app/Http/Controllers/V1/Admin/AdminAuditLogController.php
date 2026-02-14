@@ -9,6 +9,44 @@ use Illuminate\Http\Request;
 
 class AdminAuditLogController extends Controller
 {
+    /**
+     * @OA\Get(
+     *   path="/admin/audit-logs",
+     *   tags={"Admin"},
+     *   summary="Get audit logs with filters and pagination",
+     *   description="Returns a paginated list of audit logs. Supports filtering by action, actor_user_id, request_id, entity_type, entity_id, and date range (from/to).",
+     *   security={{"bearerAuth":{}}},
+     *   @OA\Parameter(name="action", in="query", required=false, @OA\Schema(type="string", example="user.created")),
+     *   @OA\Parameter(name="actor_user_id", in="query", required=false, @OA\Schema(type="integer", example=3)),
+     *   @OA\Parameter(name="request_id", in="query", required=false, @OA\Schema(type="string", example="abc12345")),
+     *   @OA\Parameter(name="entity_type", in="query", required=false, @OA\Schema(type="string", example="User")),
+     *   @OA\Parameter(name="entity_id", in="query", required=false, @OA\Schema(type="integer", example=5)),
+     *   @OA\Parameter(name="from", in="query", required=false, @OA\Schema(type="string", format="date-time", example="2024-01-01T00:00:00Z")),
+     *     @OA\Parameter(name="to", in="query", required=false, @OA\Schema(type="string", format="date-time", example="2024-12-31T23:59:59Z")),
+     *   @OA\Parameter(name="per_page", in="query", required=false, @OA\Schema(type="integer", example=50)),
+     *   @OA\Response(
+     *     response=200,
+     *     description="OK",
+     *     @OA\JsonContent(
+     *       @OA\Property(property="data", type="array", @OA\Items(type="object",
+     *         @OA\Property(property="id", type="integer", example=1),
+     *         @OA\Property(property="action", type="string", example="user.created"),
+     *         @OA\Property(property="actor_user_id", type="integer", example=3),
+     *         @OA\Property(property="entity_type", type="string", example="User"),
+     *         @OA\Property(property="entity_id", type="integer", example=5),
+     *         @OA\Property(property="created_at", type="string", format="date-time", example="2024-06-01T12:00:00Z")
+     *       )),
+     *       @OA\Property(property="meta", type="object",
+     *         @OA\Property(property="current_page", type="integer"),
+     *         @OA\Property(property="last_page", type="integer"),
+     *         @OA\Property(property="per_page", type="integer"),
+     *         @OA\Property(property="total", type="integer")
+     *       )
+     *     )
+     *   ),
+     *   @OA\Response(response=401, description="Unauthenticated")
+     * )
+     */
     public function index(Request $request): JsonResponse
     {
         $query = AuditLog::query()->orderByDesc('id');

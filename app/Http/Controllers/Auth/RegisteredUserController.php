@@ -17,40 +17,41 @@ use Illuminate\Validation\Rules;
 class RegisteredUserController extends Controller
 {
     /**
-     * Handle an incoming registration request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
-
-    /**
      * @OA\Post(
      *   path="/register",
      *   tags={"Auth"},
-     *   summary="Register a new user",
-     *   description="Returns a Sanctum token (Bearer).",
+     *   summary="Register a new user (PATIENT or NURSE)",
+     *   description="Creates a new account and returns a Sanctum Bearer token. No authentication required.",
      *   @OA\RequestBody(
      *     required=true,
      *     @OA\JsonContent(
-     *       required={"full_name","phone","password","role"},
-     *       @OA\Property(property="full_name", type="string", example="John Doe"),
-     *       @OA\Property(property="phone", type="string", example="22222222222"),
-     *       @OA\Property(property="email", type="string", example=""),
-     *     @OA\Property(property="password", type="string", example="password123"),
-     *       @OA\Property(property="role", type="string", enum={"USER","ADMIN"}, example="USER")
+     *       required={"full_name","phone","password","password_confirmation","role"},
+     *       @OA\Property(property="full_name", type="string", maxLength=150, example="Ahmed Ould Mohamed"),
+     *       @OA\Property(property="phone", type="string", maxLength=30, example="22233334444"),
+     *       @OA\Property(property="email", type="string", format="email", nullable=true, example="ahmed@example.com"),
+     *       @OA\Property(property="password", type="string", minLength=8, example="password123"),
+     *       @OA\Property(property="password_confirmation", type="string", example="password123"),
+     *       @OA\Property(property="role", type="string", enum={"PATIENT","NURSE"}, example="PATIENT")
      *     )
      *   ),
      *   @OA\Response(
      *     response=201,
-     *     description="Created",
+     *     description="User created successfully",
      *     @OA\JsonContent(
      *       @OA\Property(property="token_type", type="string", example="Bearer"),
-     *       @OA\Property(property="access_token", type="string", example="1|xxxxxxxxxxxxxxxx"),
+     *       @OA\Property(property="access_token", type="string", example="1|abc123xyz..."),
      *       @OA\Property(property="data", type="object",
-     *         @OA\Property(property="user", type="object")
+     *         @OA\Property(property="user", type="object",
+     *           @OA\Property(property="id", type="integer", example=1),
+     *           @OA\Property(property="full_name", type="string", example="Ahmed Ould Mohamed"),
+     *           @OA\Property(property="phone", type="string", example="22233334444"),
+     *           @OA\Property(property="role", type="string", example="PATIENT"),
+     *           @OA\Property(property="status", type="string", example="ACTIVE")
+     *         )
      *       )
      *     )
      *   ),
-     *   @OA\Response(response=422, description="Validation error")
+     *   @OA\Response(response=422, description="Validation error (phone taken, passwords don't match, etc.)")
      * )
      */
     public function store(RegisterRequest $request): JsonResponse

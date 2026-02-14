@@ -11,6 +11,50 @@ use Illuminate\Http\Request;
 
 class AdminStatsController extends Controller
 {
+    // openApi documentation:
+    /**
+     * @OA\Get(
+     *     path="/admin/stats",
+     *     summary="Get platform statistics",
+     *     tags={"Admin Stats"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response with platform statistics",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="users",
+     *                     type="object",
+     *                     @OA\Property(property="total", type="integer"),
+     *                     @OA\Property(property="patients", type="integer"),
+     *                     @OA\Property(property="nurses", type="integer"),
+     *                     @OA\Property(property="admins", type="integer"),
+     *                     @OA\Property(property="verified_nurses", type="integer"),
+     *                 ),
+     *                 @OA\Property(
+     *                     property="care_requests",
+     *                     type="object",
+     *                     @OA\Property(property="total", type="integer"),
+     *                     @OA\Property(property="acceptance_rate_percent", type="number", format="float"),
+     *                     @OA\Property(property="by_status", type="array", @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="status", type="string"),
+     *                         @OA\Property(property="count", type="integer"),
+     *                     )),
+     *                     @OA\Property(property="top_city", type="array", @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="city", type="string"),
+     *                         @OA\Property(property="count", type="integer"),
+     *                     )),
+     *                 )
+     *             )
+     *         )
+     *     ),
+     * )
+     */
     public function show(): JsonResponse
     {
         $usersTotal = User::query()->count();

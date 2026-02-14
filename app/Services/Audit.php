@@ -15,14 +15,14 @@ class Audit
             $context = [ 'ip' => $request->ip(), 'user_agent' => $request->userAgent(), 'request_id' => $request->header('X-Request-Id') ];
         }
 
-        $merdgedMeta = array_filter(array_merge($meta, $context), fn($value) => $value !== null && $value !== '');
+        $mergedMeta = array_filter(array_merge($meta, $context), fn($value) => $value !== null && $value !== '');
 
         AuditLog::query()->create([
             'actor_user_id' => $actor?->id,
             'action' => $action,
             'entity_type' => $entityType,
             'entity_id' => $entityId,
-            'meta' => $merdgedMeta ?: null,
+            'meta' => $mergedMeta ?: null,
             'created_at' => now(),
         ]);
     }

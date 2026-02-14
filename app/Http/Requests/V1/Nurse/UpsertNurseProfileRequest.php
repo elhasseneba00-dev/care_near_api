@@ -23,6 +23,7 @@ class UpsertNurseProfileRequest extends FormRequest
     {
         return [
             'diploma' => ['nullable', 'string', 'max:150'],
+            'diploma_file'     => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'], // 5 Mo max
             'experience_years' => ['nullable', 'integer', 'min:0', 'max:80'],
             'bio' => ['nullable', 'string', 'max:5000'],
             'city' => ['nullable', 'string', 'max:80'],
@@ -32,6 +33,14 @@ class UpsertNurseProfileRequest extends FormRequest
             'coverage_km' => ['nullable', 'integer', 'min:1', 'max:200'],
             'price_min' => ['nullable', 'integer', 'min:0'],
             'price_max' => ['nullable', 'integer', 'min:0'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'diploma_file.mimes' => 'Le diplôme doit être un fichier PDF, JPG ou PNG.',
+            'diploma_file.max'   => 'Le diplôme ne doit pas dépasser 5 Mo.',
         ];
     }
 }

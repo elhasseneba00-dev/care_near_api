@@ -25,6 +25,36 @@
       background: #fafafa;
     }
     </style>
+    <style>
+        .download-schema-btn {
+            position: fixed;
+            top: 10px;
+            right: 20px;
+            z-index: 9999;
+            background: #49cc90;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: background 0.2s;
+        }
+        .download-schema-btn:hover {
+            background: #3db57e;
+        }
+        .download-schema-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: white;
+        }
+    </style>
     @if(config('l5-swagger.defaults.ui.display.dark_mode'))
         <style>
             body#dark-mode,
@@ -117,6 +147,10 @@
 </head>
 
 <body @if(config('l5-swagger.defaults.ui.display.dark_mode')) id="dark-mode" @endif>
+<a href="{{ route('swagger.download') }}" class="download-schema-btn" title="Télécharger le schéma OpenAPI">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+    Télécharger OpenAPI
+</a>
 <div id="swagger-ui"></div>
 
 <script src="{{ l5_swagger_asset($documentation, 'swagger-ui-bundle.js') }}"></script>

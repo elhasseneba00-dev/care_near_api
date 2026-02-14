@@ -4,6 +4,8 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -52,5 +54,65 @@ class User extends Authenticatable
             'phone_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // ── Relations ────────────────────────────────────────
+
+    public function nurseProfile(): HasOne
+    {
+        return $this->hasOne(NurseProfile::class, 'user_id');
+    }
+
+    public function patientProfile(): HasOne
+    {
+        return $this->hasOne(PatientProfile::class, 'user_id');
+    }
+
+    /**
+     * Care requests created by this user (as patient).
+     */
+    public function careRequestsAsPatient(): HasMany
+    {
+        return $this->hasMany(CareRequest::class, 'patient_user_id');
+    }
+
+    /**
+     * Care requests assigned to this user (as nurse).
+     */
+    public function careRequestsAsNurse(): HasMany
+    {
+        return $this->hasMany(CareRequest::class, 'nurse_user_id');
+    }
+
+    public function reviewsGiven(): HasMany
+    {
+        return $this->hasMany(Review::class, 'patient_user_id');
+    }
+
+    public function reviewsReceived(): HasMany
+    {
+        return $this->hasMany(Review::class, 'nurse_user_id');
+    }
+
+    public function favorites(): HasMany
+    {
+        return $this->hasMany(Favorite::class, 'patient_user_id');
+    }
+
+    // ── Helpers ──────────────────────────────────────────
+
+    public function isPatient(): bool
+    {
+        return $this->role === 'PATIENT';
+    }
+
+    public function isNurse(): bool
+    {
+        return $this->role === 'NURSE';
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'ADMIN';
     }
 }
